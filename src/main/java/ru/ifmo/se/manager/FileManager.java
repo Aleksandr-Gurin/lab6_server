@@ -11,8 +11,11 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.util.Collections;
 import java.util.LinkedHashSet;
+import java.util.NoSuchElementException;
 import java.util.Scanner;
 
 /**
@@ -39,8 +42,15 @@ public class FileManager {
      * @param file xml файл, в котором находится коллекция
      * @return Коллекция MusicBand
      */
-    public LinkedHashSet<MusicBand> readFile(File file) throws FileNotFoundException {
-        startFile = file;
+    public LinkedHashSet<MusicBand> readFile(String path) throws FileNotFoundException {
+        Object object = readAvailabilityFile(path);
+        if (object instanceof File) {
+            startFile = (File) object;
+        }else
+        {
+            System.out.println(object);
+            throw new FileNotFoundException();
+        }
         StringBuilder xml = new StringBuilder();
         Scanner scanner = null;
         boolean flag = true;
@@ -49,7 +59,7 @@ public class FileManager {
         mapper.registerModule(new JavaTimeModule())
                 .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
                 .disable(DeserializationFeature.ADJUST_DATES_TO_CONTEXT_TIME_ZONE);
-        scanner = new Scanner(file, "UTF-8");
+        scanner = new Scanner(startFile, "UTF-8");
         xml = new StringBuilder();
         while (scanner.hasNextLine()) {
             xml.append(scanner.nextLine());
@@ -61,6 +71,28 @@ public class FileManager {
             System.out.println("В этом файле содержится нечто неизвестное");
         }
         return musicBands;
+    }
+
+    public static Object readAvailabilityFile(String path) {
+        Scanner file;
+        boolean flag = true;
+        File startFile = new File(path);
+        try {
+            if (Files.isHidden(startFile.toPath())) {
+                return("Файл спрятался, укажите другой или найдите его");
+            } else if (!Files.isReadable(startFile.toPath())) {
+                return ("Файл нельзя прочитать, укажите другой или измените разрешение");
+            } else if (!Files.isWritable(startFile.toPath())) {
+                return ("Файл нельзя изменить, укажите другой или измените разрешение");
+            } else if (!Files.isExecutable(startFile.toPath())) {
+                return ("Файл нельзя execute, укажите другой или измените разрешение");
+            }
+            file = new Scanner(startFile, "UTF-8");
+            flag = false;
+        } catch (NoSuchElementException | IOException | InvalidPathException e) {
+            return ("Неправильно введен путь");
+        }
+        return startFile;
     }
 
     /**

@@ -1,8 +1,12 @@
 package ru.ifmo.se.server;
 
+import ru.ifmo.se.manager.Collection;
+import ru.ifmo.se.musicians.MusicBand;
+
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.net.*;
+import java.util.LinkedHashSet;
 
 public class Server {
     private final int port;
@@ -17,14 +21,14 @@ public class Server {
         this.socket = new DatagramSocket(new InetSocketAddress(port));
     }
 
-    public void run() {
+    public void run(LinkedHashSet<MusicBand> collection) {
         try {
             //Создается клиентская сессия
             ClientSession clientSession = new ClientSession(socket, this.serverData);
             this.serverData.getSessionsManger().addSession(clientSession);
 
             //Запуск логики работы с клиентом
-            clientSession.run();
+            clientSession.run(collection);
             socket.close();
         } catch (IOException e) {
             e.printStackTrace();

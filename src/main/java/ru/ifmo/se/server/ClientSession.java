@@ -4,6 +4,7 @@ import ru.ifmo.se.commands.*;
 import ru.ifmo.se.manager.App;
 import ru.ifmo.se.manager.Collection;
 import ru.ifmo.se.manager.FileManager;
+import ru.ifmo.se.musicians.MusicBand;
 import ru.ifmo.se.server.message.MessageReader;
 import ru.ifmo.se.server.message.MessageWriter;
 
@@ -12,6 +13,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.Socket;
+import java.util.LinkedHashSet;
 import java.util.Scanner;
 
 public class ClientSession {
@@ -31,11 +33,11 @@ public class ClientSession {
         this.serverData = serverData;
     }
 
-    public void run() throws IOException {
+    public void run(LinkedHashSet<MusicBand> collectionSet) throws IOException {
         this.messageReader = new MessageReader(socket);
         messageWriter = new MessageWriter(socket, messageReader);
         this.fileManager = new FileManager();
-        this.collection = new Collection(fileManager.readFile(new File("MusicBands.xml")));
+        this.collection = new Collection(collectionSet);
         this.app = new App(collection, fileManager);
         this.controller = new Controller(collection , app, messageReader, messageWriter, socket);
         try {
