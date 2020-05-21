@@ -16,7 +16,7 @@ public class Server {
     private byte[] buf = new byte[16000];
 
     public Server() throws SocketException {
-        this.port = 5002;
+        this.port = 5003;
         this.serverData = new ServerData();
         this.socket = new DatagramSocket(new InetSocketAddress(port));
     }
