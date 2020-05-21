@@ -33,21 +33,16 @@ public class ClientSession {
         this.serverData = serverData;
     }
 
-    public void run(LinkedHashSet<MusicBand> collectionSet) throws IOException {
+    public void run(Collection collection) throws IOException {
         this.messageReader = new MessageReader(socket);
         messageWriter = new MessageWriter(socket, messageReader);
         this.fileManager = new FileManager();
-        this.collection = new Collection(collectionSet);
+        this.collection = collection;
         this.app = new App(collection, fileManager);
         this.controller = new Controller(collection , app, messageReader, messageWriter, socket);
         try {
-            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-                socket.close();
-                fileManager.saveFile(collection);
-                System.out.println("Все элементы коллекции сохранены");
-            }));
             Scanner scanner = new Scanner(System.in);
-            while(true){
+            while(socket.isBound()){
                 controller.executeCommand();
             }
         } catch (IOException | InterruptedException e) {

@@ -21,17 +21,22 @@ public class Server {
         this.socket = new DatagramSocket(new InetSocketAddress(port));
     }
 
-    public void run(LinkedHashSet<MusicBand> collection) {
+    public void run(Collection collection) {
         try {
             //Создается клиентская сессия
             ClientSession clientSession = new ClientSession(socket, this.serverData);
             this.serverData.getSessionsManger().addSession(clientSession);
 
             //Запуск логики работы с клиентом
+
             clientSession.run(collection);
             socket.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public void disconnect(){
+        socket.disconnect();
     }
 }
