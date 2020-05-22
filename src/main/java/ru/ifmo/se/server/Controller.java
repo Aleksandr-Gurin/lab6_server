@@ -26,25 +26,23 @@ public class Controller {
     private MessageWriter writer;
     private App app;
     private Collection collection;
-    private ArrayList<CommandName> hist = new ArrayList();
-    private DatagramSocket socket;
+    private ArrayList<CommandName> hist = new ArrayList<>();
 
 
     /**
      * Constructor Controller, который принимает команды
      */
-    public Controller(Collection collection, App app, MessageReader reader, MessageWriter writer, DatagramSocket socket) throws IOException {
+    public Controller(Collection collection, App app, MessageReader reader, MessageWriter writer) {
         this.collection = collection;
         this.app = app;
         this.reader = reader;
         this.writer = writer;
-        this.socket = socket;
     }
 
     /**
      * Начинает принимать команды пользователя
      */
-    public void executeCommand() throws IOException, InterruptedException {
+    public void executeCommand() {
         Object object = reader.readCommand();
         ClassCommand command;
         if (object instanceof ClassCommand) {
@@ -60,9 +58,9 @@ public class Controller {
         if (command.getCommandName() == CommandName.HISTORY) {
             writer.writeAnswer(history());
         } else if (command.getCommandName() == CommandName.EXECUTE_SCRIPT) {
-            ArrayList resultArrayList = new ArrayList();
+            ArrayList<Object> resultArrayList = new ArrayList<>();
             ExecuteScriptCommand executeScriptCommand = (ExecuteScriptCommand) command;
-            for (ClassCommand classCommand : (List<ClassCommand>) executeScriptCommand.getArgument()) {
+            ((List<ClassCommand>) executeScriptCommand.getArgument()).forEach(classCommand -> {
                 if (classCommand.getCommandName() == CommandName.HISTORY) {
                     resultArrayList.add(history());
                 } else {
@@ -78,10 +76,10 @@ public class Controller {
                         }
                     }));
                 }
-                if(classCommand.getCommandName()!= CommandName.ERROR) {
+                if (classCommand.getCommandName() != CommandName.ERROR) {
                     hist.add(classCommand.getCommandName());
                 }
-            }
+            });
             writer.writeAnswer(resultArrayList);
         } else {
             System.out.println(command.getCommandName());
@@ -101,7 +99,7 @@ public class Controller {
         hist.add(command.getCommandName());
     }
 
-    public String history() {
+    private String history() {
         StringBuilder result = new StringBuilder();
         if (hist.size() == 0) {
             result = new StringBuilder("Команд не найдено");

@@ -18,39 +18,19 @@ import java.util.Scanner;
 
 public class ClientSession {
     private DatagramSocket socket;
-    private DatagramPacket packet;
-    private final ServerData serverData;
-    private Controller controller;
-    private App app;
-    private Collection collection;
-    private MessageReader messageReader;
-    private FileManager fileManager;
-    private MessageWriter messageWriter;
-    private byte[]buf = new byte[16000];
 
-    public ClientSession(DatagramSocket socket, final ServerData serverData) throws IOException {
+    public ClientSession(DatagramSocket socket) {
         this.socket = socket;
-        this.serverData = serverData;
     }
 
-    public void run(Collection collection) throws IOException {
-        this.messageReader = new MessageReader(socket);
-        messageWriter = new MessageWriter(socket, messageReader);
-        this.fileManager = new FileManager();
-        this.collection = collection;
-        this.app = new App(collection, fileManager);
-        this.controller = new Controller(collection , app, messageReader, messageWriter, socket);
-        try {
-            Scanner scanner = new Scanner(System.in);
-            while(socket.isBound()){
-                controller.executeCommand();
-            }
-        } catch (IOException | InterruptedException e) {
-            e.printStackTrace();
+    public void run(Collection collection) {
+        MessageReader messageReader = new MessageReader(socket);
+        MessageWriter messageWriter = new MessageWriter(socket, messageReader);
+        FileManager fileManager = new FileManager();
+        App app = new App(collection, fileManager);
+        Controller controller = new Controller(collection, app, messageReader, messageWriter);
+        while (socket.isBound()) {
+            controller.executeCommand();
         }
-    }
-
-    private void doWork() {
-
     }
 }

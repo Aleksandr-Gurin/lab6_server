@@ -24,18 +24,33 @@ public class MessageReader {
         try {
             ByteBuffer buffer = ByteBuffer.allocate(16000);
             this.getBuffer(buffer);
-            ((Buffer)buffer).flip();
+            ((Buffer) buffer).flip();
             byte[] petitionBytes = new byte[buffer.remaining()];
             buffer.get(petitionBytes);
             if (petitionBytes.length > 0) {
                 ByteArrayInputStream bais = new ByteArrayInputStream(petitionBytes);
-                ObjectInputStream oos = new ObjectInputStream(bais);
-
-                object =  oos.readObject();
+                try {
+                    ObjectInputStream oos = new ObjectInputStream(bais);
+                    try {
+                        object = oos.readObject();
+                    }catch (IOException var8){
+                        var8.printStackTrace();
+                    }finally {
+                        if(oos!=null){
+                            oos.close();
+                        }
+                    }
+                }catch (IOException var7){
+                    var7.printStackTrace();
+                }finally {
+                    if (bais!=null){
+                        bais.close();
+                    }
+                }
             }
-            } catch(ClassNotFoundException | IOException e){
-                e.printStackTrace();
-            }
+        } catch (ClassNotFoundException | IOException e) {
+            e.printStackTrace();
+        }
         return object;
     }
 
@@ -58,13 +73,9 @@ public class MessageReader {
          **/
         byte[] buf = new byte[buffer.remaining()];
         DatagramPacket packet = new DatagramPacket(buf, buf.length);
-        try {
-            this.socket.receive(packet);
-            address = packet.getSocketAddress();
-            buffer.put(buf, 0, packet.getLength());
-        }catch (SocketTimeoutException var1){
-
-        }
+        this.socket.receive(packet);
+        address = packet.getSocketAddress();
+        buffer.put(buf, 0, packet.getLength());
     }
 
     public SocketAddress getAddress() {

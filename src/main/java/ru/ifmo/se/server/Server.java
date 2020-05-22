@@ -9,34 +9,28 @@ import java.net.*;
 import java.util.LinkedHashSet;
 
 public class Server {
-    private final int port;
     private ServerData serverData;
     private DatagramSocket socket;
-    private boolean running;
-    private byte[] buf = new byte[16000];
+    private Collection collection;
 
-    public Server() throws SocketException {
-        this.port = 5003;
+    public Server(int port, Collection collection) throws SocketException {
+        this.collection = collection;
         this.serverData = new ServerData();
         this.socket = new DatagramSocket(new InetSocketAddress(port));
     }
 
-    public void run(Collection collection) {
-        try {
-            //Создается клиентская сессия
-            ClientSession clientSession = new ClientSession(socket, this.serverData);
-            this.serverData.getSessionsManger().addSession(clientSession);
+    public void run() {
+        //Создается клиентская сессия
+        ClientSession clientSession = new ClientSession(socket);
+        this.serverData.getSessionsManger().addSession(clientSession);
 
-            //Запуск логики работы с клиентом
+        //Запуск логики работы с клиентом
 
-            clientSession.run(collection);
-            socket.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        clientSession.run(collection);
+        socket.close();
     }
 
-    public void disconnect(){
+    public void disconnect() {
         socket.disconnect();
     }
 }

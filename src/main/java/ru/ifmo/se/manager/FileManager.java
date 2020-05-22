@@ -27,7 +27,7 @@ import java.util.Scanner;
  */
 public class FileManager {
 
-    File startFile;
+    private File startFile;
 
     /**
      * Constructor FileManager
@@ -39,7 +39,6 @@ public class FileManager {
     /**
      * Читает xml файл, и возвращает коллекцию MusicBand из этого файла
      *
-     * @param file xml файл, в котором находится коллекция
      * @return Коллекция MusicBand
      */
     public LinkedHashSet<MusicBand> readFile(String path) throws FileNotFoundException {
@@ -98,7 +97,7 @@ public class FileManager {
     /**
      * Сохраняет коллекцию в изначальный xml файл
      *
-     * @param collection
+     * @param collection Коллекция
      */
     public void saveFile(Collection collection) {
         XmlMapper mapper = new XmlMapper();
